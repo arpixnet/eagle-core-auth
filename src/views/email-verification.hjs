@@ -1,0 +1,8 @@
+<h2>{{ subject }}</h2>
+<br>
+<p>Hola, {{ user.firstname }} {{ user.lastname }}</p>
+<p>Éste es tu código para verificar tu dirección de correo electrónico.</p>
+<p>{{ code }}</p>
+<p>Si no solicitaste la verificación de esta dirección, ignora este correo electrónico.</p>
+<p>Gracias.</p>
+<p>El equipo de Arpix Solutions</p>
