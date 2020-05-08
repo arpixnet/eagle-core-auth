@@ -14,6 +14,9 @@ function genKeyPair() {
         }
     });
 
+    const dir = __dirname + '/../keys';
+    if(!fs.existsSync(dir)) fs.mkdirSync(dir);
+
     // Public key
     fs.writeFileSync(__dirname + '/../keys/id_rsa_pub.pem', keyPair.publicKey); 
     
