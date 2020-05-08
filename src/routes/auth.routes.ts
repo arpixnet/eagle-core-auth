@@ -14,6 +14,7 @@ import {
   logout,
   socialSignIn
 } from '../controllers/auth.controller';
+import { jwk } from "../controllers/jwk.comtroller";
 import passport from "passport";
 
 const router = Router();
@@ -30,6 +31,7 @@ router.post('/email-verification', emailVerification);
 router.post('/confirm-verification', confirmVerification);
 router.post('/reset-password', resetPasswd);
 router.post('/confirm-password', confirmResetPasswd);
+router.get('/jwk/securetoken', jwk);
 
 // Social
 router.post('/facebook', passport.authenticate('facebook-token', { session: false }), socialSignIn);
