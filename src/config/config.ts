@@ -35,9 +35,9 @@ export default {
         }
     },
     social : {
-        facebook_app_id: process.env.FACEBOOK_APP_ID || '',
-        facebook_app_secret: process.env.FACEBOOK_APP_SECRET || '',
-        google_app_id: process.env.CLIENT_ID || '',
-        google_app_secret: process.env.CLIENT_SECRET || ''
+        facebook_app_id: process.env.FACEBOOK_APP_ID || 'xx',
+        facebook_app_secret: process.env.FACEBOOK_APP_SECRET || 'xx',
+        google_app_id: process.env.CLIENT_ID || 'xx',
+        google_app_secret: process.env.CLIENT_SECRET || 'xx'
     }
 };
