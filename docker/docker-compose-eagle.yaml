@@ -1,0 +1,53 @@
+version: "3.6"
+services:
+  postgres:
+    image: postgres:12
+    restart: always
+    volumes:
+      - "db_data:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_PASSWORD: arpixpasswd
+      POSTGRES_DB: eagle
+    ports:
+      - "5432:5432"
+  eagle-core-auth:
+    image: arpixnet/eagle-core-auth:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    restart: always
+    environment:
+      DB_PASSWORD: arpixpasswd
+      DB_HOST: postgres
+      DB_DATA_BASE: eagle
+      ## ------ Email config. Gmail OAuth. ------
+      # EMAIL_FROM: ""
+      # EMAIL_SERVICE: Gmail
+      # EMAIL_HOST: smtp.gmail.com
+      # EMAIL_PORT: 465
+      # EMAIL_SECURE: "true"
+      # EMAIL_AUTH_USER: example@gmail.com
+      # CLIENT_ID: 
+      # CLIENT_SECRET: 
+      # REFRESH_TOKEN: 
+      # ACCESS_TOKEN: 
+      ## ------ Example config. Facebook OAuth. ------
+      # FACEBOOK_APP_SECRET: 
+      # FACEBOOK_APP_ID: ''
+  graphql-engine:
+    image: 'hasura/graphql-engine:v1.2.1'
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+      - eagle-core-auth
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: 'postgres://postgres:arpixpasswd@postgres:5432/eagle'
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: 'startup, http-log, webhook-log, websocket-log, query-log'
+      HASURA_GRAPHQL_ADMIN_SECRET: arpixsecret
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS256","jwk_url":"http://eagle-core-auth:3000/api/v1/auth/jwk/securetoken"}'
+volumes:
+  db_data: null
