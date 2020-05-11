@@ -1,0 +1,236 @@
+{
+  "version": 2,
+  "tables": [
+    {
+      "table": {
+        "schema": "public",
+        "name": "auth"
+      },
+      "array_relationships": [
+        {
+          "name": "roles",
+          "using": {
+            "foreign_key_constraint_on": {
+              "column": "auth_id",
+              "table": {
+                "schema": "public",
+                "name": "auth_role"
+              }
+            }
+          }
+        }
+      ],
+      "select_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "columns": [
+              "created_at",
+              "disabled",
+              "email",
+              "email_verified",
+              "id",
+              "last_login_at",
+              "photo_url",
+              "provider",
+              "username"
+            ],
+            "filter": {}
+          }
+        },
+        {
+          "role": "user",
+          "permission": {
+            "columns": [
+              "email",
+              "email_verified",
+              "id",
+              "photo_url",
+              "provider",
+              "username"
+            ],
+            "filter": {
+              "id": {
+                "_eq": "X-Hasura-User-Id"
+              }
+            }
+          }
+        }
+      ],
+      "update_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "columns": [
+              "disabled",
+              "refresh_token"
+            ],
+            "filter": {},
+            "check": null
+          }
+        },
+        {
+          "role": "user",
+          "permission": {
+            "columns": [
+              "photo_url",
+              "username"
+            ],
+            "filter": {
+              "id": {
+                "_eq": "X-Hasura-User-Id"
+              }
+            },
+            "check": null
+          }
+        }
+      ]
+    },
+    {
+      "table": {
+        "schema": "public",
+        "name": "auth_role"
+      },
+      "object_relationships": [
+        {
+          "name": "auth",
+          "using": {
+            "foreign_key_constraint_on": "auth_id"
+          }
+        },
+        {
+          "name": "role",
+          "using": {
+            "foreign_key_constraint_on": "role_id"
+          }
+        }
+      ],
+      "insert_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "check": {},
+            "columns": [
+              "auth_id",
+              "role_id"
+            ],
+            "backend_only": false
+          }
+        }
+      ],
+      "select_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "columns": [
+              "auth_id",
+              "role_id"
+            ],
+            "filter": {}
+          }
+        },
+        {
+          "role": "user",
+          "permission": {
+            "columns": [
+              "role_id"
+            ],
+            "filter": {
+              "auth_id": {
+                "_eq": "X-Hasura-User-Id"
+              }
+            }
+          }
+        }
+      ],
+      "delete_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "filter": {}
+          }
+        }
+      ]
+    },
+    {
+      "table": {
+        "schema": "public",
+        "name": "role"
+      },
+      "array_relationships": [
+        {
+          "name": "users",
+          "using": {
+            "foreign_key_constraint_on": {
+              "column": "role_id",
+              "table": {
+                "schema": "public",
+                "name": "auth_role"
+              }
+            }
+          }
+        }
+      ],
+      "insert_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "check": {},
+            "columns": [
+              "name"
+            ],
+            "backend_only": false
+          }
+        }
+      ],
+      "select_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "columns": [
+              "id",
+              "name"
+            ],
+            "filter": {}
+          }
+        },
+        {
+          "role": "user",
+          "permission": {
+            "columns": [
+              "id",
+              "name"
+            ],
+            "filter": {
+              "users": {
+                "auth_id": {
+                  "_eq": "X-Hasura-User-Id"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "update_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "columns": [
+              "name"
+            ],
+            "filter": {},
+            "check": null
+          }
+        }
+      ],
+      "delete_permissions": [
+        {
+          "role": "uadmin",
+          "permission": {
+            "filter": {}
+          }
+        }
+      ]
+    }
+  ]
+}
