@@ -192,6 +192,7 @@ const refresh = async (req: Request, res: Response): Promise<Response> => {
         return res.status(200).send({
             token,
             expires: new Date(verify.exp * 1000),
+            user: clearData(user), 
             message: 'success', 
             code: 200
         });
