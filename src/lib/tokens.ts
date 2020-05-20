@@ -19,14 +19,14 @@ const createToken = (user:IUser) => {
         'x-hasura-user-email': user.email
     };
     return jwt.sign({ id: user.id, email: user.email, "https://hasura.io/jwt/claims": customClaims }, PRIV_KEY, {
-        expiresIn: config.tokens.connect, 
+        expiresIn: parseInt(config.tokens.connect.toString()), 
         algorithm: 'RS256'
     });
 }
 
 const createRefreshToken = (user: IUser, refresh_token: string) => {
     return jwt.sign({ id: user.id, refresh_token: refresh_token }, config.jwtSecret, {
-        expiresIn: config.tokens.refresh
+        expiresIn: parseInt(config.tokens.refresh.toString())
     });
 }
 
