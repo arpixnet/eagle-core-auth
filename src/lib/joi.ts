@@ -48,12 +48,6 @@ export const emailValidation = (data: any) => {
 
 export const passwordValidation = (data: any) => {
     const userSchema = Joi.object({
-        password: Joi
-            .string()
-            .min(6)
-            .required()
-            .pattern(new RegExp('^[a-zA-Z0-9$@$!%*?&]{6,30}$'))
-            .error(new Error('\"password\" fails to match the required')),
         newPassword: Joi
             .string()
             .min(6)

@@ -251,7 +251,7 @@ const changePasswd = async (req: Request, res: Response): Promise<Response> => {
     const password: string = req.body.password;
     const newPassword: string = req.body.newPassword;
 
-    const { error } = passwordValidation({password, newPassword}); // Validation with Joi
+    const { error } = passwordValidation({newPassword}); // Validation with Joi
     if (error) return res.status(400).json({error: {message:error.message, code: 400}});
 
     const respCompare = comparePassword(password, user.password, user.salt);
@@ -438,7 +438,7 @@ const confirmResetPasswd = async (req: Request, res: Response): Promise<Response
     if (!newPassword) return res.status(msgErrors.INVALID_PASSWORD.error.code).json(msgErrors.INVALID_PASSWORD);
     if (!code) return res.status(msgErrors.INVALID_OOB_CODE.error.code).json(msgErrors.INVALID_OOB_CODE);
 
-    const { error } = passwordValidation({password: newPassword, newPassword}); // Validation with Joi
+    const { error } = passwordValidation({newPassword}); // Validation with Joi
     if (error) return res.status(400).json({error: {message:error.message, code: 400}});
 
     try {
