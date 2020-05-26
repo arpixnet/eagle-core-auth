@@ -13,7 +13,7 @@ const PUB_KEY = fs.readFileSync(pathToPubKey, 'utf8');
 
 const createToken = (user:IUser) => {
     const customClaims = {
-        'x-hasura-default-role': "user",
+        'x-hasura-default-role': user.role,
         'x-hasura-allowed-roles': user.roles,
         'x-hasura-user-id': user.id,
         'x-hasura-user-email': user.email

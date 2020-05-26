@@ -20,6 +20,7 @@ export interface IUser extends Document {
     reset_password_code?: string;
     reset_password_expiration?: string;
     social_id?: string;
+    role?: string;
 };
 
 export const encryptPassword = function(password: string) {
@@ -62,5 +63,6 @@ export const clearData = (user: IUser) => {
     delete user.reset_password_code;
     delete user.reset_password_expiration;
     delete user.social_id;
+    delete user.role;
     return user;
 }
