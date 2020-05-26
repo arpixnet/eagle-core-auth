@@ -4,7 +4,7 @@ import passportMiddleware from './middlewares/passport';
 import facebookStrategy from "./middlewares/passport-facebook";
 import googleStrategy from "./middlewares/passport-google";
 import cors from 'cors';
-const cookieParser = require('cookie-parser');
+import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import authRoutes from './routes/auth.routes';
 
@@ -13,10 +13,14 @@ const server: Application = express();
 
 // Settings
 server.set('port', process.env.PORT || 3000);
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN || '*',
+    credentials: (process.env.CORS_CREDENTIALS === 'true')
+};
 
 // Middlewares
 server.use(morgan('dev'));
-server.use(cors());
+server.use(cors(corsOptions));
 server.use(cookieParser());
 server.use(express.urlencoded({extended: false}));
 server.use(express.json());
