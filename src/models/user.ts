@@ -63,6 +63,5 @@ export const clearData = (user: IUser) => {
     delete user.reset_password_code;
     delete user.reset_password_expiration;
     delete user.social_id;
-    delete user.role;
     return user;
 }
