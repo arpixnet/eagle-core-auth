@@ -1,7 +1,7 @@
 version: "3.6"
 services:
   postgres:
-    image: postgres:12
+    image: postgres:12.6
     restart: always
     volumes:
       - "db_data:/var/lib/postgresql/data"
@@ -36,7 +36,7 @@ services:
       # FACEBOOK_APP_SECRET: 
       # FACEBOOK_APP_ID: ''
   graphql-engine:
-    image: 'hasura/graphql-engine:v1.2.1'
+    image: 'hasura/graphql-engine:v2.6.0'
     ports:
       - '8080:8080'
     depends_on:
@@ -48,6 +48,6 @@ services:
       HASURA_GRAPHQL_ENABLE_CONSOLE: 'true'
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: 'startup, http-log, webhook-log, websocket-log, query-log'
       HASURA_GRAPHQL_ADMIN_SECRET: arpixsecret
-      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS256","jwk_url":"http://eagle-core-auth:3000/api/v1/auth/jwk/securetoken"}'
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512","jwk_url":"http://eagle-core-auth:3000/api/v1/auth/jwk/securetoken"}'
 volumes:
   db_data: null
