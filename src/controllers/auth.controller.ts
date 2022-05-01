@@ -70,7 +70,7 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         await db.query('BEGIN', '');
         const { rows } = await User.insertUser(values);
         let user: IUser = rows[0];
-        
+
         // user.roles = ['user']; ###### PENDIENTE POR DEFINIR
         // await User.insertUserRole(user.id); ###### PENDIENTE POR DEFINIR
 
@@ -523,6 +523,7 @@ const socialSignIn = async (req: Request, res: Response): Promise<Response> =>  
     }
 }
 
+// Update User
 const updateUser = async (req: Request, res: Response): Promise<Response> => {
     const user: any = req.user;
     let data: any = { };
