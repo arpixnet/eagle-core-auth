@@ -1,37 +1,46 @@
 import path from "path";
 import fs from "fs";
-import jwt from "jsonwebtoken";
+import jwt, { Algorithm } from "jsonwebtoken";
 import { IUser } from "../models/user";
+import { ILambdas } from "../models/lambdas";
 import config from "../config/config";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { Lambda } from '../controllers/lambda.comtroller'
 
 const pathToPrivKey = path.join(__dirname, '../keys', 'id_rsa_priv.pem');
 const PRIV_KEY = fs.readFileSync(pathToPrivKey, 'utf8');
 const pathToPubKey = path.join(__dirname, '../keys', 'id_rsa_pub.pem');
 const PUB_KEY = fs.readFileSync(pathToPubKey, 'utf8');
 
-const createToken = (user:IUser) => {
-    const customClaims = {
-        'x-hasura-default-role': user.role,
-        'x-hasura-allowed-roles': user.roles,
-        'x-hasura-user-id': user.id,
-        'x-hasura-user-email': user.email
-    };
-    return jwt.sign({ id: user.id, email: user.email, "https://hasura.io/jwt/claims": customClaims }, PRIV_KEY, {
+const createToken = async (user:IUser) => {
+    const lambda:ILambdas|null = await Lambda.findByCode(config.auth.lambdaCode)
+    let tokenPayload:any = {
+        id: user.id,
+        email: user.email
+    }
+
+    if (lambda && lambda.hasOwnProperty('function')) {
+        const customClaimsFunctions = new Function('jwt', 'user', lambda.function);
+        const customClaims = customClaimsFunctions({}, user)
+        const index = Object.keys(customClaims)
+        tokenPayload[index[0]] = customClaims[index[0]]
+    }
+
+    return jwt.sign(tokenPayload, PRIV_KEY, {
         expiresIn: parseInt(config.tokens.connect.toString()), 
-        algorithm: 'RS256'
+        algorithm: config.auth.jwtAlgorithm as Algorithm
     });
 }
 
 const createRefreshToken = (user: IUser, refresh_token: string) => {
-    return jwt.sign({ id: user.id, refresh_token: refresh_token }, config.jwtSecret, {
+    return jwt.sign({ id: user.id, refresh_token: refresh_token }, config.auth.jwtSecret, {
         expiresIn: parseInt(config.tokens.refresh.toString())
     });
 }
 
 const verifyToken = (token: string) => {
-    return jwt.verify(token, PUB_KEY, { algorithms: ['RS256'] }, (err, payload) => {
+    return jwt.verify(token, PUB_KEY, { algorithms: [config.auth.jwtAlgorithm as Algorithm] }, (err, payload) => {
         if (err?.name === 'TokenExpiredError') return null;
         if (err?.name === 'JsonWebTokenError') return null;
         if (err === null) return payload;
@@ -40,7 +49,7 @@ const verifyToken = (token: string) => {
 }
 
 const verifyRefreshToken = (token: string) => {
-    return jwt.verify(token, config.jwtSecret, (err, payload) => {
+    return jwt.verify(token, config.auth.jwtSecret, (err, payload) => {
         if (err?.name === 'TokenExpiredError') return {error: 'TokenExpired'};
         if (err?.name === 'JsonWebTokenError') return {error: 'TokenError'};
         if (err === null) return payload;

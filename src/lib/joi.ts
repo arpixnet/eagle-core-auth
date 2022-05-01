@@ -46,6 +46,17 @@ export const emailValidation = (data: any) => {
     return userSchema.validate(data);
 };
 
+export const userValidation = (data: any) => {
+    const userSchema = Joi.object({
+        username: Joi
+            .string()
+            .min(4),
+        mobile: Joi.number().integer(),
+        photo_url: Joi.string().uri()
+    });
+    return userSchema.validate(data);
+};
+
 export const passwordValidation = (data: any) => {
     const userSchema = Joi.object({
         newPassword: Joi

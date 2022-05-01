@@ -5,7 +5,7 @@ import { msgErrors } from "../helpers/status";
 import db from "../database/query";
 import moment from 'moment';
 import { createToken, createHash, createRefreshToken, verifyToken, verifyRefreshToken } from "../lib/tokens";
-import { signinValidation, signupValidation, emailValidation, passwordValidation } from '../lib/joi'
+import { signinValidation, signupValidation, emailValidation, passwordValidation, userValidation } from '../lib/joi'
 import config from "../config/config";
 import { getRandom } from "../lib/tools";
 import hogan from "hogan.js";
@@ -29,7 +29,7 @@ const login = async (user:IUser, req: Request, res: Response) => {
         if (!user.refresh_token) refresh_token = await createHash();
         else refresh_token = user.refresh_token;
 
-        const token = createToken(user); // Token is generated
+        const token = await createToken(user); // Token is generated
         const verify:any = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
         if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
         const refreshToken = createRefreshToken(user, refresh_token); // Refresh token is generated
@@ -70,10 +70,11 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         await db.query('BEGIN', '');
         const { rows } = await User.insertUser(values);
         let user: IUser = rows[0];
-        user.roles = ['user'];
-        await User.insertUserRole(user.id);
+        
+        // user.roles = ['user']; ###### PENDIENTE POR DEFINIR
+        // await User.insertUserRole(user.id); ###### PENDIENTE POR DEFINIR
 
-        const token = createToken(user); // Token is generated
+        const token = await createToken(user); // Token is generated
         const verify: any = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
         const refreshToken = createRefreshToken(user, values[4]); // Refresh token is generated
         if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);        
@@ -93,7 +94,7 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         }
         if (values[5] != 'local') send.social = social;
         return res.status(200).send(send);
-    } catch (err) {
+    } catch (err:any) {
         await db.query('ROLLBACK', '');
         if (err.routine === '_bt_check_unique') {
             return res.status(msgErrors.EMAIL_EXISTS.error.code).send(msgErrors.EMAIL_EXISTS);
@@ -107,27 +108,32 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
 
 // SignUp method
 const signUp = async (req: Request, res: Response): Promise<Response> => {
-    if (!req.body.email || !req.body.password) {
-        return res.status(msgErrors.NOT_EMAIL_OR_PASSWORD.error.code).json(msgErrors.NOT_EMAIL_OR_PASSWORD);
+    try {
+        if (!req.body.email || !req.body.password) {
+            return res.status(msgErrors.NOT_EMAIL_OR_PASSWORD.error.code).json(msgErrors.NOT_EMAIL_OR_PASSWORD);
+        }
+    
+        const { error } = signupValidation(req.body); // Validation with Joi
+        if (error) return res.status(400).json({error: {message:error.message, code: 400}});
+        let { email, password, salt, username } = cureUser(req.body); // Curating user data
+        const refresh_token = await createHash(); // A hash is generated to verify the refresh token
+    
+        const values: any = [
+            email,
+            password,
+            salt,
+            username,
+            refresh_token,
+            'local',
+            null,
+            null,
+            false
+        ];
+        return await register(values, null, req, res);
+    } catch (err) {
+        console.error(err);
+        return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
     }
-
-    const { error } = signupValidation(req.body); // Validation with Joi
-    if (error) return res.status(400).json({error: {message:error.message, code: 400}});
-    let { email, password, salt, username } = cureUser(req.body); // Curating user data
-    const refresh_token = await createHash(); // A hash is generated to verify the refresh token
-
-    const values: any = [
-        email,
-        password,
-        salt,
-        username,
-        refresh_token,
-        'local',
-        null,
-        null,
-        false
-    ];
-    return register(values, null, req, res);
 };
 
 // SignIn method
@@ -148,7 +154,7 @@ const signIn = async (req: Request, res: Response): Promise<Response> => {
         if (!respCompare) {
             return res.status(msgErrors.INVALID_PASSWORD.error.code).send(msgErrors.INVALID_PASSWORD);
         }
-        return login(user, req, res);
+        return await login(user, req, res);
     } catch (err) {
         console.error(err);
         return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
@@ -185,7 +191,7 @@ const refresh = async (req: Request, res: Response): Promise<Response> => {
             return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
         }
 
-        const token = createToken(user);
+        const token = await createToken(user);
         const verify:any = verifyToken(token);
         if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
 
@@ -220,7 +226,7 @@ const changeEmail = async (req: Request, res: Response): Promise<Response> => {
         const updateUser = await User.updateEmail(user.id, newEmail);
         if (updateUser) {
             user.email = newEmail;
-            const token = createToken(user); // Token is generated
+            const token = await createToken(user); // Token is generated
             const verify: any = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
             if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
 
@@ -234,7 +240,7 @@ const changeEmail = async (req: Request, res: Response): Promise<Response> => {
         } else {
             return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
         }
-    } catch (err) {
+    } catch (err:any) {
         if (err.routine === '_bt_check_unique') {
             return res.status(msgErrors.EMAIL_EXISTS.error.code).send(msgErrors.EMAIL_EXISTS);
         }
@@ -261,7 +267,7 @@ const changePasswd = async (req: Request, res: Response): Promise<Response> => {
     try {
         const updatePasswd = await User.updatePassword(user.id, hash, salt);
         if (updatePasswd) {
-            const token = createToken(user); // Token is generated
+            const token = await createToken(user); // Token is generated
             const verify: any = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
             if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
 
@@ -307,12 +313,17 @@ const deleteUser = async (req: Request, res: Response): Promise<Response> => {
 
 // Get my account
 const account = async (req: Request, res: Response): Promise<Response> => {
-    const user: any = req.user;
-    return res.status(200).send({
-        user: clearData(user), 
-        code: 200,
-        message: 'success'
-    });
+    try {
+        const user: any = req.user;
+        return res.status(200).send({
+            user: clearData(user), 
+            code: 200,
+            message: 'success'
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
+    }
 }
 
 // Logout method
@@ -512,6 +523,39 @@ const socialSignIn = async (req: Request, res: Response): Promise<Response> =>  
     }
 }
 
+const updateUser = async (req: Request, res: Response): Promise<Response> => {
+    const user: any = req.user;
+    let data: any = { };
+
+    if (req.body.hasOwnProperty('username')) req.body.username = req.body.username.trim().replace(/\s+/g, '_');
+
+    const { error } = userValidation(req.body); // Validation with Joi
+    if (error) return res.status(400).json({error: {message:error.message, code: 400}});
+
+    Object.keys(req.body).forEach((key: string) => {
+        data[key] = req.body[key];
+    });
+
+    try {
+        const updateUser = (Object.keys(data).length > 0) ? await User.updateUser(user.id, data) : null;
+
+        if (updateUser) {
+            if (data.hasOwnProperty('username')) user.username = data.username;
+            if (data.hasOwnProperty('photo_url')) user.photo_url = data.photo_url;
+            if (data.hasOwnProperty('mobile')) user.mobile = data.mobile;
+        }
+
+        return res.status(200).send({
+            user: clearData(user),
+            code: 200,
+            message: 'success'
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
+    }
+}
+
 export {
     signUp,
     signIn,
@@ -525,5 +569,6 @@ export {
     confirmVerification,
     resetPasswd,
     confirmResetPasswd,
-    socialSignIn
+    socialSignIn,
+    updateUser
 }

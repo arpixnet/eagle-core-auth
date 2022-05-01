@@ -1,31 +1,34 @@
 import crypto from "crypto";
+import config from "../config/config";
 
 export interface IUser extends Document {
     id?: string;
     email: string;
+    email_verified?: boolean;
     password?: string;
     salt?: string;
     username?: string;
-    email_verified?: boolean;
     provider?: string;
     photo_url?: string;
-    disabled?: boolean;
-    last_login_at?: string;
+    mobile?: string;
     refresh_token?: string;
-    created_at?: string;
-    updated_at?: string;
-    roles?: [string?];
     email_verification_code?: string;
     email_verification_expiration?: number;
+    sms_verification_code?: string;
+    sms_verification_expiration?: number;
     reset_password_code?: string;
     reset_password_expiration?: string;
     social_id?: string;
-    role?: string;
+    last_login_at?: string;
+    disabled?: boolean;
+    roles?: [string?];
+    created_at?: string;
+    updated_at?: string;
 };
 
 export const encryptPassword = function(password: string) {
     const salt: string = crypto.randomBytes(32).toString('hex');
-    const hash: string = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    const hash: string = crypto.pbkdf2Sync(password, salt, 10000, 64, config.auth.passwdAlgorithm).toString('hex');
     return { hash, salt };
 };
 
@@ -45,7 +48,7 @@ export const cureUser = function(user: IUser) {
 }
 
 export const comparePassword = function(password: string, hash: string = '', salt: string = ''): Boolean {
-    const hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    const hashVerify = crypto.pbkdf2Sync(password, salt, 10000, 64, config.auth.passwdAlgorithm).toString('hex');
     return hash === hashVerify;
 };
 
@@ -60,6 +63,8 @@ export const clearData = (user: IUser) => {
     delete user.roles;
     delete user.email_verification_code;
     delete user.email_verification_expiration;
+    delete user.sms_verification_code;
+    delete user.sms_verification_expiration;
     delete user.reset_password_code;
     delete user.reset_password_expiration;
     delete user.social_id;
