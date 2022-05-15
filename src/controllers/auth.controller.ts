@@ -112,6 +112,10 @@ const signUp = async (req: Request, res: Response): Promise<Response> => {
         if (!req.body.email || !req.body.password) {
             return res.status(msgErrors.NOT_EMAIL_OR_PASSWORD.error.code).json(msgErrors.NOT_EMAIL_OR_PASSWORD);
         }
+
+        if (!config.auth.allowRegistration) {
+            return res.status(msgErrors.OPERATION_NOT_ALLOWED.error.code).json(msgErrors.OPERATION_NOT_ALLOWED);
+        }
     
         const { error } = signupValidation(req.body); // Validation with Joi
         if (error) return res.status(400).json({error: {message:error.message, code: 400}});

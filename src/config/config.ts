@@ -13,7 +13,8 @@ export default {
         jwtSecret: process.env.JWT_SECRET || "arpixsecretkey",
         jwtAlgorithm: process.env.JWT_ALGORITHM || "RS512",
         passwdAlgorithm: process.env.PASSWD_ALGORITHM || "sha512",
-        lambdaCode: process.env.LAMBDA_CODE || "hasura_claim"
+        lambdaCode: process.env.LAMBDA_CODE || "hasura_claim",
+        allowRegistration: (process.env.ALLOW_REGISTRATION) ? (process.env.ALLOW_REGISTRATION === "true") : true
     },
     tokens: {
         connect: process.env.CONNECT_TOKEN_LIFE || 900,
