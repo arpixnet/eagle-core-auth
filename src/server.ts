@@ -46,5 +46,6 @@ passport.deserializeUser((user:any, done) => {
 
 // Routes
 server.use('/api/v1/auth', authRoutes);
+server.use('/api/auth', authRoutes);
 
 export default server;
