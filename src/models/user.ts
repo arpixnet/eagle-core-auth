@@ -11,6 +11,7 @@ export interface IUser extends Document {
     provider?: string;
     photo_url?: string;
     mobile?: string;
+    mobile_verified?: boolean;
     refresh_token?: string;
     email_verification_code?: string;
     email_verification_expiration?: number;
