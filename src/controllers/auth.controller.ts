@@ -71,8 +71,7 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         const { rows } = await User.insertUser(values);
         let user: IUser = rows[0];
 
-        // user.roles = ['user']; ###### PENDIENTE POR DEFINIR
-        // await User.insertUserRole(user.id); ###### PENDIENTE POR DEFINIR
+        await User.insertUserRoleDefault(user.id);
 
         const token = await createToken(user); // Token is generated
         const verify: any = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date

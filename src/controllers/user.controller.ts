@@ -1,5 +1,6 @@
 import db from "../database/query";
 import { IUser } from "../models/user";
+import { IRole } from "../models/role";
 import moment from "moment";
 
 export class User {
@@ -97,14 +98,26 @@ export class User {
         }
     }
 
-    // static async insertUserRole(id: string | undefined) {
-    //     const insertUserRoleQuery = `INSERT INTO auth_role (
-    //         SELECT $1 AS auth_id, id 
-    //         FROM role
-    //         WHERE name = 'user'
-    //     )`;
-    //     await db.query(insertUserRoleQuery, [id]);
-    // }
+    // Get Roles
+    static async getRoles(): Promise<IRole | null> {
+        const rolesQuery = 'SELECT * FROM role';
+        try {
+            return await db.query(rolesQuery, []);
+        } catch (err) {
+            console.error(err);
+            return null
+        }
+    }
+
+    // Add Role default to User
+    static async insertUserRoleDefault(id: string | undefined) {
+        const insertUserRoleQuery = `INSERT INTO auth_role (
+            SELECT $1 AS auth_id, code 
+            FROM role
+            WHERE by_default = true
+        )`;
+        await db.query(insertUserRoleQuery, [id]);
+    }
 
     // Update email verification code
     static async updateEmailVerification(id: string | undefined, code: string): Promise<IUser | null> {
