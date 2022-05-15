@@ -16,7 +16,8 @@ export default {
         lambdaCode: process.env.LAMBDA_CODE || "hasura_claim",
         allowRegistration: (process.env.ALLOW_REGISTRATION) ? (process.env.ALLOW_REGISTRATION === "true") : true,
         passwordMin: parseInt(process.env.PASSWORD_MIN || "6"),
-        passwordStrong: (process.env.PASSWORD_STRONG) ? (process.env.PASSWORD_STRONG === "true") : true
+        passwordStrong: (process.env.PASSWORD_STRONG) ? (process.env.PASSWORD_STRONG === "true") : true,
+        loginAfterRegister: (process.env.LOGIN_AFTER_REGISTER) ? (process.env.LOGIN_AFTER_REGISTER === "true") : false
     },
     tokens: {
         connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),

@@ -70,28 +70,37 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         await db.query('BEGIN', '');
         const { rows } = await User.insertUser(values);
         let user: IUser = rows[0];
+        let token: any;
+        let verify: any;
 
         await User.insertUserRoleDefault(user.id);
 
-        const token = await createToken(user); // Token is generated
-        const verify: any = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
-        const refreshToken = createRefreshToken(user, values[4]); // Refresh token is generated
-        if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);        
-        res.cookie('eagleRT', refreshToken, {
-            httpOnly: true,
-            secure: config.tokens.secure,
-            expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
-        });
+        if (config.auth.loginAfterRegister) {
+            token = await createToken(user); // Token is generated
+            verify = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
+            const refreshToken = createRefreshToken(user, values[4]); // Refresh token is generated
+            if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);        
+            res.cookie('eagleRT', refreshToken, {
+                httpOnly: true,
+                secure: config.tokens.secure,
+                expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
+            });
+        }
+
         // Commit the transaction
         await db.query('COMMIT', '');
-        const send:any = {
-            token,
-            expires: new Date(verify.exp * 1000),
+
+        let send:any = {
             user: clearData(user), 
             code: 200,
             message: 'success'
         }
+        if (config.auth.loginAfterRegister) {
+            send.token = token;
+            send.expires = new Date(verify.exp * 1000);
+        }
         if (values[5] != 'local') send.social = social;
+
         return res.status(200).send(send);
     } catch (err:any) {
         await db.query('ROLLBACK', '');
