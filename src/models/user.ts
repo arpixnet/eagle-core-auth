@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import config from "../config/config";
+import { IRole } from "../models/role";
 
 export interface IUser extends Document {
     id?: string;
@@ -22,7 +23,7 @@ export interface IUser extends Document {
     social_id?: string;
     last_login_at?: string;
     disabled?: boolean;
-    roles?: [string?];
+    roles?: [IRole?];
     created_at?: string;
     updated_at?: string;
 };
