@@ -1,6 +1,5 @@
 import db from "../database/query";
 import { IUser } from "../models/user";
-import { IRole } from "../models/role";
 import moment from "moment";
 
 export class User {
@@ -92,17 +91,6 @@ export class User {
         try {
             const row = await db.query(deleteUserQuery, [id]);
             return (row.rowCount) ? row.rowCount : null;
-        } catch (err) {
-            console.error(err);
-            return null
-        }
-    }
-
-    // Get Roles
-    static async getRoles(): Promise<IRole | null> {
-        const rolesQuery = 'SELECT * FROM role';
-        try {
-            return await db.query(rolesQuery, []);
         } catch (err) {
             console.error(err);
             return null
