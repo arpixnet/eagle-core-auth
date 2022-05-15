@@ -2,12 +2,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
-    DB: {
-        USER: process.env.DB_USER || "postgres",
-        PASSWORD: process.env.DB_PASSWORD || "postgres",
-        HOST: process.env.DB_HOST || "127.0.0.1",
-        PORT: parseInt(process.env.DB_PORT || "5432"),
-        DATABASE: process.env.DB_DATA_BASE || "postgres"
+    db: {
+        user: process.env.DB_USER || "postgres",
+        password: process.env.DB_PASSWORD || "postgres",
+        host: process.env.DB_HOST || "127.0.0.1",
+        port: parseInt(process.env.DB_PORT || "5432"),
+        database: process.env.DB_DATA_BASE || "postgres"
     },
     auth: {
         jwtSecret: process.env.JWT_SECRET || "arpixsecretkey",
@@ -40,9 +40,9 @@ export default {
         }
     },
     social : {
-        facebook_app_id: process.env.FACEBOOK_APP_ID || "xx",
-        facebook_app_secret: process.env.FACEBOOK_APP_SECRET || "xx",
-        google_app_id: process.env.CLIENT_ID || "xx",
-        google_app_secret: process.env.CLIENT_SECRET || "xx"
+        facebookAppId: process.env.FACEBOOK_APP_ID || "xx",
+        facebookAppSecret: process.env.FACEBOOK_APP_SECRET || "xx",
+        googleAppId: process.env.CLIENT_ID || "xx",
+        googleAppSecret: process.env.CLIENT_SECRET || "xx"
     }
 };

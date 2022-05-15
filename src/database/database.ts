@@ -2,11 +2,11 @@ import { Pool, ClientConfig } from 'pg';
 import config from '../config/config';
 
 const dbOptions: ClientConfig = {
-    user: config.DB.USER,
-    password: config.DB.PASSWORD,
-    host: config.DB.HOST,
-    port: config.DB.PORT,
-    database: config.DB.DATABASE
+    user: config.db.user,
+    password: config.db.password,
+    host: config.db.host,
+    port: config.db.port,
+    database: config.db.database
 };
 
 const pool = new Pool(dbOptions);

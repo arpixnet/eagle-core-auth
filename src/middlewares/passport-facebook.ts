@@ -2,8 +2,8 @@ import config from "../config/config";
 import Strategy from "passport-facebook-token";
 
 const opts = {
-    clientID: config.social.facebook_app_id,
-    clientSecret: config.social.facebook_app_secret,
+    clientID: config.social.facebookAppId,
+    clientSecret: config.social.facebookAppSecret,
     profileFields: ['id', 'photos', 'email', "name"]
 };
 
