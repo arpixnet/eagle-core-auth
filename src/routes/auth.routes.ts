@@ -42,4 +42,22 @@ router.delete('/user', passport.authenticate('jwt', { session: false }), deleteU
 router.get('/user', passport.authenticate('jwt', { session: false }), account);
 router.patch('/user', passport.authenticate('jwt', { session: false }), updateUser);
 
+// Admin
+// router.post('/admin/role', createRole);
+// router.get('/admin/role', readRoles);
+// router.get('/admin/role/:id', readRole);
+// router.patch('/admin/role', updateRole);
+// router.delete('/admin/role', deleteRole);
+
+// router.post('/admin/user/role', addRoleToUser);
+// router.get('/admin/user/:id/roles', getUserRoles);
+// router.delete('/admin/user/role', removeRoleFromUser);
+
+// router.post('/admin/user', createUser);
+// router.get('/admin/user', readUsers);
+// router.get('/admin/user/:id', readUser);
+// router.patch('/admin/user', updateUser);
+// router.delete('/admin/user', deleteUser);
+// router.post('/admin/user/reset-password', resetUserPassword);
+
 export default router;
