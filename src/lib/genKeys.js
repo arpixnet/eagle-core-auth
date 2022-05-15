@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 
-function genKeyPair() {
+const genKeyPair = () => {
     const keyPair = crypto.generateKeyPairSync('rsa', {
         modulusLength: 4096, // bits - standard for RSA keys
         publicKeyEncoding: {
