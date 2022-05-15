@@ -53,11 +53,11 @@ router.patch('/user', passport.authenticate('jwt', { session: false }), updateUs
 // router.get('/admin/user/:id/roles', getUserRoles);
 // router.delete('/admin/user/role', removeRoleFromUser);
 
-// router.post('/admin/user', createUser);
-// router.get('/admin/user', readUsers);
-// router.get('/admin/user/:id', readUser);
-// router.patch('/admin/user', updateUser);
-// router.delete('/admin/user', deleteUser);
-// router.post('/admin/user/reset-password', resetUserPassword);
+// router.post('/admin/user', createAdminUser);
+// router.get('/admin/user', readAdminUsers);
+// router.get('/admin/user/:id', readAdminUser);
+// router.patch('/admin/user', updateAdminUser);
+// router.delete('/admin/user', deleteAdminUser);
+// router.post('/admin/user/reset-password', resetAdminUserPassword);
 
 export default router;
