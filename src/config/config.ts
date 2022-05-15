@@ -14,11 +14,13 @@ export default {
         jwtAlgorithm: process.env.JWT_ALGORITHM || "RS512",
         passwdAlgorithm: process.env.PASSWD_ALGORITHM || "sha512",
         lambdaCode: process.env.LAMBDA_CODE || "hasura_claim",
-        allowRegistration: (process.env.ALLOW_REGISTRATION) ? (process.env.ALLOW_REGISTRATION === "true") : true
+        allowRegistration: (process.env.ALLOW_REGISTRATION) ? (process.env.ALLOW_REGISTRATION === "true") : true,
+        passwordMin: parseInt(process.env.PASSWORD_MIN || "6"),
+        passwordStrong: (process.env.PASSWORD_STRONG) ? (process.env.PASSWORD_STRONG === "true") : true
     },
     tokens: {
-        connect: process.env.CONNECT_TOKEN_LIFE || 900,
-        refresh: process.env.REFRESH_TOKEN_LIFE || 31536000,
+        connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),
+        refresh: parseInt(process.env.REFRESH_TOKEN_LIFE || "31536000"),
         secure: (process.env.SECURE_TOKEN === "true")
     },
     email: {
