@@ -17,7 +17,8 @@ export default {
         allowRegistration: (process.env.ALLOW_REGISTRATION) ? (process.env.ALLOW_REGISTRATION === "true") : true,
         passwordMin: parseInt(process.env.PASSWORD_MIN || "6"),
         passwordStrong: (process.env.PASSWORD_STRONG) ? (process.env.PASSWORD_STRONG === "true") : true,
-        loginAfterRegister: (process.env.LOGIN_AFTER_REGISTER) ? (process.env.LOGIN_AFTER_REGISTER === "true") : false
+        loginAfterRegister: (process.env.LOGIN_AFTER_REGISTER) ? (process.env.LOGIN_AFTER_REGISTER === "true") : false,
+        emailVerification: (process.env.EMAIL_VERIFICATION) ? (process.env.EMAIL_VERIFICATION === "true") : true
     },
     tokens: {
         connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),

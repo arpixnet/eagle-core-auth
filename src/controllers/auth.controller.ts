@@ -21,6 +21,9 @@ const login = async (user:IUser, req: Request, res: Response) => {
         if (user.disabled) {
             return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
         }
+        if (config.auth.emailVerification && !user.email_verified) {
+            return res.status(msgErrors.EMAIL_NOT_VERIFIED.error.code).send(msgErrors.EMAIL_NOT_VERIFIED);
+        }
 
         const last_login_at = moment(new Date()).format('YYYY-MM-DDTHH:mm:ssZ');
 

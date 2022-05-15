@@ -29,6 +29,12 @@ const msgErrors = {
             code: 400
         }
     },
+    EMAIL_NOT_VERIFIED: {
+        error: {
+            message: 'Email not verified',
+            code: 400
+        }
+    },
     INVALID_PASSWORD: {
         error: {
             message: 'Invalid password',
