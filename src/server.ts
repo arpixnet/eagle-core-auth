@@ -28,10 +28,10 @@ server.use(passport.initialize());
 passport.use(passportMiddleware);
 passport.use(facebookStrategy);
 passport.use(googleStrategy);
-passport.serializeUser(function(user, done) {
+passport.serializeUser((user:any, done) => {
     done(null, user);
 });
-passport.deserializeUser(function(user, done) {
+passport.deserializeUser((user:any, done) => {
     done(null, user);
 });
 
