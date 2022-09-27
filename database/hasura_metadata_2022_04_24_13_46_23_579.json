@@ -1,0 +1,75 @@
+{
+  "resource_version": 16,
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "oauth_server",
+        "kind": "postgres",
+        "tables": [
+          {
+            "table": {
+              "schema": "public",
+              "name": "auth"
+            },
+            "array_relationships": [
+              {
+                "name": "roles",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "auth_id",
+                    "table": {
+                      "schema": "public",
+                      "name": "auth_roles"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "schema": "public",
+              "name": "auth_roles"
+            },
+            "object_relationships": [
+              {
+                "name": "auth",
+                "using": {
+                  "foreign_key_constraint_on": "auth_id"
+                }
+              },
+              {
+                "name": "role",
+                "using": {
+                  "foreign_key_constraint_on": "roles_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "schema": "public",
+              "name": "roles"
+            }
+          }
+        ],
+        "configuration": {
+          "connection_info": {
+            "use_prepared_statements": true,
+            "database_url": {
+              "from_env": "HASURA_GRAPHQL_DATABASE_URL"
+            },
+            "isolation_level": "read-committed",
+            "pool_settings": {
+              "connection_lifetime": 600,
+              "retries": 1,
+              "idle_timeout": 180,
+              "max_connections": 50
+            }
+          }
+        }
+      }
+    ]
+  }
+}
