@@ -60,4 +60,10 @@ router.patch('/user', passport.authenticate('jwt', { session: false }), updateUs
 // router.delete('/admin/user', deleteAdminUser);
 // router.post('/admin/user/reset-password', resetAdminUserPassword);
 
+// router.post('/admin/lambda', createLambda);
+// router.get('/admin/lambda', readRLambdas);
+// router.get('/admin/lambda/:id', readLambda);
+// router.patch('/admin/lambda', updateLambda);
+// router.delete('/admin/lambda', deleteLambda);
+
 export default router;
