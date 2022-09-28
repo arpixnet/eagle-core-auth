@@ -9,5 +9,7 @@ const opts = {
 export default new GoogleStrategyt.Strategy(opts, (accessToken:string, refreshToken:string, payload:any, done:any) => {
     const profile = payload._json || null;
     if (!profile?.email || !profile?.id) return done(null, false);
+    payload.accessToken = accessToken
+    payload.refreshToken = refreshToken
     return done(null, payload);
 })
