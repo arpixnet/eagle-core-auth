@@ -512,25 +512,39 @@ const socialSignIn = async (req: Request, res: Response): Promise<Response> =>  
         if (user) {
             return login(user, req, res);
         } else {
-            const email = profile._json.email, password = '', salt = '', username = null;
+            const provider = profile.provider;
+            const social_id = profile.id;
+            const social_json = profile._json;
+            const email = social_json.email, password = '', salt = '', email_verified = true;
+            let username = null
+            let photo_url = null;
             const refresh_token = await createHash(); // A hash is generated to verify the refresh token
-            let photo = null;
-            if (profile.provider == 'facebook') {
-                if (profile._json.picture.data.is_silhouette == false) photo = profile._json.picture.data.url;
-            } else if (profile.provider == 'google') photo = profile._json.picture;
 
-            const values: any = [
+            if (provider == 'facebook') {
+                if (social_json.picture.data.is_silhouette == false) photo_url = social_json.picture.data.url;
+            } 
+            else if (provider == 'google') photo_url = social_json.picture;
+            else if (provider == 'github') {
+                photo_url = social_json.avatar_url;
+                username = social_json.login
+            }
+            else if (provider == 'bitbucket') {
+
+            }
+
+            const values:any = {
                 email,
                 password,
                 salt,
                 username,
                 refresh_token,
-                profile.provider,
-                profile.id,
-                photo,
-                true
-            ];
-            return register(values, profile._json, req, res);
+                provider,
+                social_id,
+                photo_url,
+                email_verified, 
+                social_json
+            };
+            return register(values, social_json, req, res);
         }
     } catch (err) {
         console.error(err);

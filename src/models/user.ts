@@ -21,6 +21,7 @@ export interface IUser extends Document {
     reset_password_code?: string;
     reset_password_expiration?: string;
     social_id?: string;
+    social_json?: object;
     last_login_at?: string;
     disabled?: boolean;
     roles?: [IRole?];
@@ -70,5 +71,6 @@ export const clearData = (user: IUser) => {
     delete user.reset_password_code;
     delete user.reset_password_expiration;
     delete user.social_id;
+    delete user.social_json;
     return user;
 }

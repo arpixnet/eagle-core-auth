@@ -147,12 +147,23 @@ export class User {
     }
 
     // Create User
-    static async insertUser(values:IUser):Promise<any> {
+    static async insertUser(values:any):Promise<any> {
+        let i = 1;
+        let queryParameters = '';
+        let queryValues = '';
+        let parameters = Object.values(values);
+        
+        for (let index in values){
+            queryParameters += `${index}${(i < parameters.length) ? ', ' : ''}`;
+            queryValues += `$${i}${(i < parameters.length) ? ', ' : ''}`;
+            i++;
+        }
+
         const createUserQuery = `INSERT INTO
-        auth(email, password, salt, username, refresh_token, provider, social_id, photo_url, email_verified)
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        auth(${queryParameters})
+        VALUES(${queryValues})
         returning *`;
-        return await db.query(createUserQuery, values);
+        return await db.query(createUserQuery, parameters);
     }
 
     // Update refresh_token and last_login after login

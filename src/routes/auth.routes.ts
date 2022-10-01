@@ -17,6 +17,7 @@ import {
 } from '../controllers/auth.controller';
 import { jwk } from "../controllers/jwk.comtroller";
 import passport from "passport";
+import getTokenGithub from "../middlewares/get-token-github";
 
 const router = Router();
 
@@ -36,6 +37,9 @@ router.get('/jwk/securetoken', jwk);
 // Social
 router.post('/facebook', passport.authenticate('facebook-token', { session: false }), socialSignIn);
 router.post('/google', passport.authenticate('google-token', { session: false, scope: ['profile', 'email', 'name'] }), socialSignIn);
+router.post('/github/token', getTokenGithub, () => {});
+router.post('/github', [passport.authenticate('github-token', { session: false })], socialSignIn);
+router.post('/bitbucket', passport.authenticate('bitbucket-token', { session: false, scope: ['repository', 'account', 'project', 'email'] }), socialSignIn);
 
 // User
 router.delete('/user', passport.authenticate('jwt', { session: false }), deleteUser);
