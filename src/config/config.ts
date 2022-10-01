@@ -18,7 +18,8 @@ export default {
         passwordMin: parseInt(process.env.PASSWORD_MIN || "6"),
         passwordStrong: (process.env.PASSWORD_STRONG) ? (process.env.PASSWORD_STRONG === "true") : true,
         loginAfterRegister: (process.env.LOGIN_AFTER_REGISTER) ? (process.env.LOGIN_AFTER_REGISTER === "true") : false,
-        emailVerification: (process.env.EMAIL_VERIFICATION) ? (process.env.EMAIL_VERIFICATION === "true") : true
+        emailVerification: (process.env.EMAIL_VERIFICATION) ? (process.env.EMAIL_VERIFICATION === "true") : true,
+        signSecretKey: process.env.SIGN_SECRET_KEY || 'xx'
     },
     tokens: {
         connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),
@@ -48,6 +49,11 @@ export default {
         facebookAppId: process.env.FACEBOOK_APP_ID || "xx",
         facebookAppSecret: process.env.FACEBOOK_APP_SECRET || "xx",
         googleAppId: process.env.CLIENT_ID || "xx",
-        googleAppSecret: process.env.CLIENT_SECRET || "xx"
+        googleAppSecret: process.env.CLIENT_SECRET || "xx",
+        githubAppId: process.env.GITHUB_APP_ID || "xx",
+        githubAppSecret: process.env.GITHUB_APP_SECRET || "xx",
+        githubUrlToken: process.env.GITHUB_URL_TOKEN || "https://github.com/login/oauth/access_token",
+        bitbucketAppId: process.env.BITBUCKET_APP_ID || "xx",
+        bitbucketAppSecret: process.env.BITBUCKET_APP_SECRET || "xx"
     }
 };

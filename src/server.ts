@@ -3,6 +3,8 @@ import passport from 'passport'
 import passportMiddleware from './middlewares/passport';
 import facebookStrategy from "./middlewares/passport-facebook";
 import googleStrategy from "./middlewares/passport-google";
+import githubStrategy from "./middlewares/passport-github";
+import bitbucketStrategy from "./middlewares/passport-bitbucket";
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
@@ -28,6 +30,8 @@ server.use(passport.initialize());
 passport.use(passportMiddleware);
 passport.use(facebookStrategy);
 passport.use(googleStrategy);
+passport.use(githubStrategy);
+passport.use(bitbucketStrategy);
 passport.serializeUser((user:any, done) => {
     done(null, user);
 });
@@ -36,7 +40,7 @@ passport.deserializeUser((user:any, done) => {
 });
 
 // error handler
-// app.use((err, req, res, next) => {
+// server.use((err:any, req:any, res:any, next:any) => {
 // 	if (err) {
 // 		console.error(err.message);
 // 		console.error(err.stack);
