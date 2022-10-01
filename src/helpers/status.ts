@@ -94,6 +94,12 @@ const msgErrors = {
             message: 'Token expired',
             code: 400
         }
+    },
+    UNAUTHORIZED: {
+        error: {
+            message: 'Unauthorized',
+            code: 401
+        }
     }
 }
 
