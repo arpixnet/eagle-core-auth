@@ -24,7 +24,8 @@ export default {
     tokens: {
         connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),
         refresh: parseInt(process.env.REFRESH_TOKEN_LIFE || "31536000"),
-        secure: (process.env.SECURE_TOKEN === "true")
+        secure: (process.env.SECURE_TOKEN === "true"),
+        refreshOnCookie: (process.env.REFRESH_ON_COOKIE === "true")
     },
     email: {
         emailVerificationSubject: process.env.EMAIL_VERIFICATION_SUBJECT || "Verify your email",

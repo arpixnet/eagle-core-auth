@@ -44,21 +44,30 @@ const login = async (user:IUser, req: Request, res: Response) => {
             last_login_at,
             refresh_token
         ]);
-        res.cookie('eagleRT', refreshToken, {
-            httpOnly: true,
-            secure: config.tokens.secure,
-            expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
-        });
+        if (config.tokens.refreshOnCookie) {
+            res.cookie('eagleRT', refreshToken, {
+                httpOnly: true,
+                secure: config.tokens.secure,
+                expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
+            });
+        }
         // Commit the transaction
         await db.query('COMMIT', '');
 
-        return res.status(200).send({
-            token,
-            expires: new Date(verify.exp * 1000),
+        let payload:any = {
+            access_token: token,
+            access_token_expires: new Date(verify.exp * 1000),
             user: clearData(user), 
             code: 200,
             message: 'success'
-        });
+        }
+
+        if (!config.tokens.refreshOnCookie) {
+            payload.refresh_token = refreshToken;
+            payload.refresh_token_expires = new Date(Date.now() + parseInt(config.tokens.refresh.toString()))
+        }
+
+        return res.status(200).send(payload);
     } catch (err) {
         await db.query('ROLLBACK', '');
         console.error(err);
@@ -78,33 +87,36 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
 
         await User.insertUserRoleDefault(user.id);
 
-        if (config.auth.loginAfterRegister) {
-            token = await createToken(user); // Token is generated
-            verify = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
-            const refreshToken = createRefreshToken(user, values[4]); // Refresh token is generated
-            if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);        
-            res.cookie('eagleRT', refreshToken, {
-                httpOnly: true,
-                secure: config.tokens.secure,
-                expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
-            });
-        }
-
-        // Commit the transaction
-        await db.query('COMMIT', '');
-
-        let send:any = {
+        let payload:any = {
             user: clearData(user), 
             code: 200,
             message: 'success'
         }
-        if (config.auth.loginAfterRegister) {
-            send.token = token;
-            send.expires = new Date(verify.exp * 1000);
-        }
-        if (values[5] != 'local') send.social = social;
 
-        return res.status(200).send(send);
+        if (config.auth.loginAfterRegister) {
+            token = await createToken(user); // Token is generated
+            verify = verifyToken(token); // The token is verified to evaluate a possible error and to extract the expiration date
+            payload.access_token = token;
+            payload.access_token_expires = new Date(verify.exp * 1000);
+            const refreshToken = createRefreshToken(user, values[4]); // Refresh token is generated
+            if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER); 
+            if (config.tokens.refreshOnCookie) {
+                res.cookie('eagleRT', refreshToken, {
+                    httpOnly: true,
+                    secure: config.tokens.secure,
+                    expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
+                });
+            } else {
+                payload.refresh_token = refreshToken;
+                payload.refresh_token_expires = new Date(Date.now() + parseInt(config.tokens.refresh.toString()))
+            }
+        }
+        // Commit the transaction
+        await db.query('COMMIT', '');
+
+        if (values[5] != 'local') payload.social = social;
+
+        return res.status(200).send(payload);
     } catch (err:any) {
         await db.query('ROLLBACK', '');
         if (err.routine === '_bt_check_unique') {
@@ -178,31 +190,37 @@ const signIn = async (req: Request, res: Response): Promise<Response> => {
 
 // Refresh method
 const refresh = async (req: Request, res: Response): Promise<Response> => {
-    const eagleRT = await req.cookies.eagleRT;
-    if (!eagleRT) return res.status(msgErrors.INVALID_ID_TOKEN.error.code).json(msgErrors.INVALID_ID_TOKEN);
+    let req_payload: any = ''
 
-    const payload: any = verifyRefreshToken(eagleRT);
-    if (!payload) {
-        res.cookie('eagleRT', '', {maxAge: -1});
+    if (config.tokens.refreshOnCookie) {
+        const eagleRT = await req.cookies.eagleRT;
+        if (!eagleRT) return res.status(msgErrors.INVALID_ID_TOKEN.error.code).json(msgErrors.INVALID_ID_TOKEN);
+        req_payload = verifyRefreshToken(eagleRT);
+    } else {
+        req_payload = verifyRefreshToken(req.body.refresh_token);
+    }
+
+    if (!req_payload) {
+        if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
         return res.status(msgErrors.INVALID_ID_TOKEN.error.code).json(msgErrors.INVALID_ID_TOKEN);
     }
-    else if (payload?.error == 'TokenExpired') return res.status(msgErrors.TOKEN_EXPIRED.error.code).json(msgErrors.TOKEN_EXPIRED);
-    else if (payload?.error == 'TokenError') return res.status(msgErrors.INVALID_ID_TOKEN.error.code).json(msgErrors.INVALID_ID_TOKEN);
+    else if (req_payload?.error == 'TokenExpired') return res.status(msgErrors.TOKEN_EXPIRED.error.code).json(msgErrors.TOKEN_EXPIRED);
+    else if (req_payload?.error == 'TokenError') return res.status(msgErrors.INVALID_ID_TOKEN.error.code).json(msgErrors.INVALID_ID_TOKEN);
 
-    const {id, refresh_token} = payload;
+    const {id, refresh_token} = req_payload;
 
     try {
         const user = await User.findById(id);
         if (!user) {
-            res.cookie('eagleRT', '', {maxAge: -1});
+            if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
             return res.status(msgErrors.INVALID_ID_TOKEN.error.code).send(msgErrors.INVALID_ID_TOKEN);
         }
         if (user.refresh_token != refresh_token) {
-            res.cookie('eagleRT', '', {maxAge: -1});
+            if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
             return res.status(msgErrors.INVALID_ID_TOKEN.error.code).send(msgErrors.INVALID_ID_TOKEN);
         }
         if (user.disabled) {
-            res.cookie('eagleRT', '', {maxAge: -1});
+            if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
             return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
         }
 
@@ -210,13 +228,15 @@ const refresh = async (req: Request, res: Response): Promise<Response> => {
         const verify:any = verifyToken(token);
         if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
 
-        return res.status(200).send({
-            token,
-            expires: new Date(verify.exp * 1000),
+        let payload: any = {
+            access_token: token,
+            access_token_expires: new Date(verify.exp * 1000),
             user: clearData(user), 
             message: 'success', 
             code: 200
-        });
+        }
+
+        return res.status(200).send(payload);
     } catch (err) {
         console.error(err);
         return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
@@ -246,8 +266,8 @@ const changeEmail = async (req: Request, res: Response): Promise<Response> => {
             if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
 
             return res.status(200).send({
-                token,
-                expires: new Date(verify.exp * 1000),
+                access_token: token,
+                access_token_expires: new Date(verify.exp * 1000),
                 user: clearData(user), 
                 code: 200,
                 message: 'success'
@@ -287,8 +307,8 @@ const changePasswd = async (req: Request, res: Response): Promise<Response> => {
             if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
 
             return res.status(200).send({
-                token,
-                expires: new Date(verify.exp * 1000),
+                access_token: token,
+                access_token_expires: new Date(verify.exp * 1000),
                 user: clearData(user), 
                 code: 200,
                 message: 'success'
@@ -315,7 +335,7 @@ const deleteUser = async (req: Request, res: Response): Promise<Response> => {
     try {
         const delUser = await User.delete(user.id);
         if (delUser) {
-            res.cookie('eagleRT', '', {maxAge: -1})
+            if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1})
             return res.status(200).send({message: 'success', code: 200});
         } else {
             return res.status(msgErrors.USER_NOT_FOUND.error.code).json(msgErrors.USER_NOT_FOUND);
@@ -343,7 +363,7 @@ const account = async (req: Request, res: Response): Promise<Response> => {
 
 // Logout method
 const logout = async (req: Request, res: Response): Promise<Response> => {
-    res.cookie('eagleRT', '', {maxAge: -1});
+    if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
     return res.status(200).send({message: 'success', code: 200});
 }
 
@@ -401,7 +421,7 @@ const confirmVerification = async (req: Request, res: Response): Promise<Respons
 
         if (user && user.email_verification_code == code) {
             if (user.disabled) {
-                res.cookie('eagleRT', '', {maxAge: -1});
+                if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
                 return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
             }
             const updateEmailVerified = await User.updateEmailVerified(user.id, true);
@@ -430,7 +450,7 @@ const resetPasswd = async (req: Request, res: Response): Promise<Response> => {
         const user:IUser | null = await User.findByEmailOrUsername(email);
         if (user) {
             if (user.disabled) {
-                res.cookie('eagleRT', '', {maxAge: -1});
+                if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
                 return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
             }
             const code = getRandom(123456, 999999);
@@ -475,7 +495,7 @@ const confirmResetPasswd = async (req: Request, res: Response): Promise<Response
         if (user) {
             if (verification_time <= expires) return res.status(msgErrors.EXPIRED_OOB_CODE.error.code).json(msgErrors.EXPIRED_OOB_CODE);
             if (user.disabled) {
-                res.cookie('eagleRT', '', {maxAge: -1});
+                if (config.tokens.refreshOnCookie) res.cookie('eagleRT', '', {maxAge: -1});
                 return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
             }
             if (user.reset_password_code != code) return res.status(msgErrors.INVALID_OOB_CODE.error.code).send(msgErrors.INVALID_OOB_CODE);
