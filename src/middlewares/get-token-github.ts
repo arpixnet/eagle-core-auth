@@ -5,9 +5,10 @@ import axios from 'axios'
 
 export default (req:Request, res:Response, done:any) => {
     const code: string = req.body.code || '';
+    const referred: string = (req.body.referred) ? `&referred=${req.body.referred}` : '';
     if (code) {
         getToken(code).then(token => {
-            const new_url = `/api/v1/auth/github?access_token=${token}`;
+            const new_url = `/api/v1/auth/github?access_token=${token}${referred}`;
             res.redirect(308, new_url);
             return done();
         }).catch(err => {

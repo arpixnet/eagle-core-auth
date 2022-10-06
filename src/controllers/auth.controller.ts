@@ -527,6 +527,7 @@ const confirmResetPasswd = async (req: Request, res: Response): Promise<Response
 // Social signin (Facebook and Google)
 const socialSignIn = async (req: Request, res: Response): Promise<Response> =>  {
     const profile: any = req.user;
+    const referred = req.query.referred || null;
     try {
         const user:IUser | null = await User.findByEmailOrUsername(profile._json.email);
         if (user) {
@@ -564,6 +565,7 @@ const socialSignIn = async (req: Request, res: Response): Promise<Response> =>  
                 email_verified, 
                 social_json
             };
+            if(referred) values.referred = referred
             return register(values, social_json, req, res);
         }
     } catch (err) {
