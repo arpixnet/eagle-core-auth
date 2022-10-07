@@ -1,0 +1,6 @@
+<h2>Bienvenido</h2>
+<br>
+<p>Hola, {{ user.firstname }}</p>
+<p>Te damos la bienvenida a la plataforma.</p>
+<p>Gracias por ser parte de este proyecto.</p>
+<p>El equipo de Arpix Solutions</p>
