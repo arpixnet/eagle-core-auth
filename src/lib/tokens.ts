@@ -21,7 +21,7 @@ const createToken = async (user:IUser) => {
     }
 
     if (lambda && lambda.hasOwnProperty('function')) {
-        lambda.function = lambda.function.trim() + 'return populate(jwt, user)';
+        lambda.function = `${lambda.function.trim()}\n` + ' return populate(jwt, user)';
         const customClaimsFunctions = new Function('jwt', 'user', lambda.function);
         const customClaims = customClaimsFunctions({}, user);
         const index = Object.keys(customClaims);

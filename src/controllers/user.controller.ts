@@ -103,8 +103,8 @@ export class User {
             SELECT $1 AS auth_id, code 
             FROM role
             WHERE by_default = true
-        )`;
-        await db.query(insertUserRoleQuery, [id]);
+        ) returning *`;
+        return await db.query(insertUserRoleQuery, [id]);
     }
 
     // Update email verification code

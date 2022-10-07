@@ -85,10 +85,20 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         let token: any;
         let verify: any;
 
-        await User.insertUserRoleDefault(user.id);
+        const roles = await User.insertUserRoleDefault(user.id);
+        if (roles.rows.length > 0) {
+            let urole:any = []
+            roles.rows.forEach((role:any) => {
+                urole.push({
+                    id: role.auth_id,
+                    code: role.role_code,
+                    main: role.main
+                })
+            });
+            user.roles = urole
+        }
 
         let payload:any = {
-            user: clearData(user), 
             code: 200,
             message: 'success'
         }
@@ -113,6 +123,7 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
         }
         // Commit the transaction
         await db.query('COMMIT', '');
+        payload.user = clearData(user)
 
         if (values[5] != 'local') payload.social = social;
 
