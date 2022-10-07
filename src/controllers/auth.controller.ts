@@ -132,6 +132,7 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
 
 // SignUp method
 const signUp = async (req: Request, res: Response): Promise<Response> => {
+    const referred = req.query.referred || null;
     try {
         if (!req.body.email || !req.body.password) {
             return res.status(msgErrors.NOT_EMAIL_OR_PASSWORD.error.code).json(msgErrors.NOT_EMAIL_OR_PASSWORD);
@@ -146,17 +147,19 @@ const signUp = async (req: Request, res: Response): Promise<Response> => {
         let { email, password, salt, username } = cureUser(req.body); // Curating user data
         const refresh_token = await createHash(); // A hash is generated to verify the refresh token
     
-        const values: any = [
+        const values: any = {
             email,
             password,
             salt,
             username,
             refresh_token,
-            'local',
-            null,
-            null,
-            false
-        ];
+            provider: 'local',
+            social_id: null,
+            photo_url: null,
+            email_verified: false
+        };
+
+        if(referred) values.referred = referred
         return await register(values, null, req, res);
     } catch (err) {
         console.error(err);
