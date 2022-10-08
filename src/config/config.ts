@@ -44,6 +44,11 @@ export default {
             }
         }
     },
+    aws: {
+        email_access_key: process.env.AWS_ACCESS_KEY || '',
+        email_secret_key: process.env.AWS_SECRET_KEY || '',
+        email_region: process.env.AWS_REGION || ''
+    },
     social : {
         facebookAppId: process.env.FACEBOOK_APP_ID || "xx",
         facebookAppSecret: process.env.FACEBOOK_APP_SECRET || "xx",

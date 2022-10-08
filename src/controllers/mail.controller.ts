@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import config from "../config/config";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import { config as awsConf, SES } from "aws-sdk";
 
 interface IEmail {
     from:string,
@@ -35,9 +36,36 @@ const gmailServer:SMTPTransport.Options = {
     }
 }
 
-const sendEmail = (contentSendMail:IEmail) => {
-    let transporter = nodemailer.createTransport((config.email.config.service == 'Gmail') ? gmailServer : smtpServer); 
-    transporter.sendMail(contentSendMail).catch(err => {
+const transportAWS = () => {
+    awsConf.update({
+        accessKeyId: config.aws.email_access_key,
+        secretAccessKey: config.aws.email_secret_key,
+        region: config.aws.email_region
+    });
+
+    return nodemailer.createTransport({
+        SES: new SES({
+            apiVersion: '2010-12-01'
+        })
+    });
+}
+
+const sendEmail = async (contentSendMail:IEmail) => {
+    let transporter:any;
+
+    switch (config.email.config.service) {
+        case 'Gmail':
+            transporter = nodemailer.createTransport(gmailServer)
+        break;
+        case 'SMTP':
+            transporter = nodemailer.createTransport(smtpServer)
+        break;
+        case 'AWS':
+            transporter = transportAWS()
+        break;
+    }
+
+    await transporter.sendMail(contentSendMail).catch((err:any) => {
         console.error(err);
     })
 }
