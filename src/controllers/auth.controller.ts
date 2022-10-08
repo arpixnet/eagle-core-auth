@@ -397,16 +397,7 @@ const emailVerification = async (req: Request, res: Response): Promise<Response>
             const code = getRandom(123456, 999999);
             const updateCode = await User.updateEmailVerification(user.id, code.toString());
             if (updateCode) {
-                const pathToTemplate = path.join(__dirname, '../views', 'email-verification.hjs');
-                const template = fs.readFileSync(pathToTemplate, 'utf8');
-                let compiledtemplate = hogan.compile(template);
-                let content:IEmail = {
-                    from: config.email.from,
-                    to: email,
-                    subject: config.email.emailVerificationSubject,
-                    html: compiledtemplate.render({user, code, subject: config.email.emailVerificationSubject})
-                }
-                sendEmail(content);
+                startSendEmail('email-verification', email, {user, code, subject: 'email-verification'}, {})
             }
         }
         return res.status(200).send({message: 'success', code: 200});
@@ -471,16 +462,7 @@ const resetPasswd = async (req: Request, res: Response): Promise<Response> => {
             const code = getRandom(123456, 999999);
             const updateCode = await User.updateResetPasswordCode(user.id, code.toString());
             if (updateCode) {
-                const pathToTemplate = path.join(__dirname, '../views', 'reset-password.hjs');
-                const template = fs.readFileSync(pathToTemplate, 'utf8');
-                let compiledtemplate = hogan.compile(template);
-                let content:IEmail = {
-                    from: config.email.from,
-                    to: email,
-                    subject: config.email.resetPasswordSubject,
-                    html: compiledtemplate.render({user, code, subject: config.email.resetPasswordSubject})
-                }
-                sendEmail(content);
+                startSendEmail('reset-password', email, {user, code, subject: 'reset-password'}, {})
             }
         }
         return res.status(200).send({message: 'success', code: 200});

@@ -28,8 +28,6 @@ export default {
         refreshOnCookie: (process.env.REFRESH_ON_COOKIE === "true")
     },
     email: {
-        emailVerificationSubject: process.env.EMAIL_VERIFICATION_SUBJECT || "Verify your email",
-        resetPasswordSubject: process.env.RESET_PASSWORD_SUBJECT || "Reset your password",
         from: process.env.EMAIL_FROM || "",
         config: {
             service: process.env.EMAIL_SERVICE || "SMTP",
