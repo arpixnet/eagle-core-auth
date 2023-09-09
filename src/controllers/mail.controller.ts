@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import config from "../config/config";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import { config as awsConf, SES } from "aws-sdk";
+import aws from "@aws-sdk/client-ses";
 
 interface IEmail {
     from:string,
@@ -37,16 +37,17 @@ const gmailServer:SMTPTransport.Options = {
 }
 
 const transportAWS = () => {
-    awsConf.update({
-        accessKeyId: config.aws.email_access_key,
-        secretAccessKey: config.aws.email_secret_key,
-        region: config.aws.email_region
+    const ses = new aws.SES({
+        apiVersion: "2010-12-01",
+        region: config.aws.email_region,
+        credentials: {
+            accessKeyId: config.aws.email_access_key,
+            secretAccessKey: config.aws.email_secret_key
+        }
     });
 
     return nodemailer.createTransport({
-        SES: new SES({
-            apiVersion: '2010-12-01'
-        })
+        SES: { ses, aws },
     });
 }
 
