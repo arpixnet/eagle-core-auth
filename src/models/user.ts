@@ -19,7 +19,7 @@ export interface IUser extends Document {
     sms_verification_code?: string;
     sms_verification_expiration?: number;
     reset_password_code?: string;
-    reset_password_expiration?: string;
+    reset_password_expiration?: number;
     social_id?: string;
     social_json?: object;
     last_login_at?: string;
