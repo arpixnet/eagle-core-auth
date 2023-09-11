@@ -1,4 +1,4 @@
-FROM node:12
+FROM node:18.17.1
 
 WORKDIR /usr/src/eagle-core/auth
 COPY package*.json ./
