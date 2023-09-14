@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import config from "../config/config";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
-import aws from "@aws-sdk/client-ses";
+let aws = require("@aws-sdk/client-ses");
 
 interface IEmail {
     from:string,
