@@ -19,7 +19,8 @@ export default {
         passwordStrong: (process.env.PASSWORD_STRONG) ? (process.env.PASSWORD_STRONG === "true") : true,
         loginAfterRegister: (process.env.LOGIN_AFTER_REGISTER) ? (process.env.LOGIN_AFTER_REGISTER === "true") : false,
         emailVerification: (process.env.EMAIL_VERIFICATION) ? (process.env.EMAIL_VERIFICATION === "true") : true,
-        signSecretKey: process.env.SIGN_SECRET_KEY || 'xx'
+        signSecretKey: process.env.SIGN_SECRET_KEY || 'xx',
+        tokenWithoutExpirationTime: parseInt(process.env.TOKEN_WITHOUT_EXPIRATION_TIME || '94608000')
     },
     tokens: {
         connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),

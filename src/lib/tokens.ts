@@ -13,7 +13,7 @@ const PRIV_KEY = fs.readFileSync(pathToPrivKey, 'utf8');
 const pathToPubKey = path.join(__dirname, '../keys', 'id_rsa_pub.pem');
 const PUB_KEY = fs.readFileSync(pathToPubKey, 'utf8');
 
-const createToken = async (user:IUser) => {
+const createToken = async (user:IUser, withoutExpiration:boolean = false) => {
     const lambda:ILambdas|null = await Lambda.findByCode(config.auth.lambdaCode)
     let tokenPayload:any = {
         id: user.id,
@@ -26,6 +26,13 @@ const createToken = async (user:IUser) => {
         const customClaims = customClaimsFunctions({}, user);
         const index = Object.keys(customClaims);
         tokenPayload[index[0]] = customClaims[index[0]];
+    }
+
+    if (withoutExpiration) {
+        return jwt.sign(tokenPayload, PRIV_KEY, {
+            expiresIn: parseInt(config.auth.tokenWithoutExpirationTime.toString()),
+            algorithm: config.auth.jwtAlgorithm as Algorithm
+        });
     }
 
     return jwt.sign(tokenPayload, PRIV_KEY, {

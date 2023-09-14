@@ -3,6 +3,7 @@ import {
   signIn,
   signUp,
   refresh,
+  tokenWithoutExpiration,
   changeEmail,
   changePasswd,
   deleteUser,
@@ -25,6 +26,7 @@ const router = Router();
 router.post('/signup', signUp);
 router.post('/signin', signIn);
 router.post('/refresh', refresh);
+router.get('/token-without-expiration', passport.authenticate('jwt', { session: false }), tokenWithoutExpiration);
 router.post('/change-email', passport.authenticate('jwt', { session: false }), changeEmail);
 router.post('/change-password', passport.authenticate('jwt', { session: false }), changePasswd);
 router.get('/logout', passport.authenticate('jwt', { session: false }), logout);

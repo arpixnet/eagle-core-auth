@@ -258,6 +258,49 @@ const refresh = async (req: Request, res: Response): Promise<Response> => {
     }
 };
 
+// Token Without Expiration method
+const tokenWithoutExpiration = async (req: Request, res: Response): Promise<Response> => {
+    const userId:string = req.body.user_id;
+    const userLogged:any = req.user ?? null;
+    
+    if (!userId) {
+        return res.status(msgErrors.USER_NOT_FOUND.error.code).json(msgErrors.USER_NOT_FOUND);
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(msgErrors.USER_NOT_FOUND.error.code).send(msgErrors.USER_NOT_FOUND);
+        }
+        if (user.disabled) {
+            return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
+        }
+        if (userLogged && userLogged.hasOwnProperty('roles') && userLogged.roles) {
+            const hasAdminRole = userLogged.roles.some((role:any) => role.code === 'admin');
+            if (!hasAdminRole) {
+                return res.status(msgErrors.UNAUTHORIZED.error.code).json(msgErrors.UNAUTHORIZED);
+            }
+        }
+
+        const token = await createToken(user, true);
+        const verify:any = verifyToken(token);
+        if (!verify) return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
+
+        let payload: any = {
+            access_token: token,
+            access_token_expires: new Date(verify.exp * 1000),
+            user: clearData(user), 
+            message: 'success', 
+            code: 200
+        }
+
+        return res.status(200).send(payload);
+    } catch (err) {
+        console.error(err);
+        return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
+    }
+};
+
 // Change my email
 const changeEmail = async (req: Request, res: Response): Promise<Response> => {
     if (!req.body.email) return res.status(msgErrors.INVALID_EMAIL.error.code).json(msgErrors.INVALID_EMAIL);
@@ -630,6 +673,7 @@ export {
     signUp,
     signIn,
     refresh,
+    tokenWithoutExpiration,
     changeEmail,
     changePasswd,
     deleteUser, 
