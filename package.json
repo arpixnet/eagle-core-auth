@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "copyfiles --flat src/keys/*.pem dist/keys && copyfiles -u 2 src/views/**/* dist/views && tsc-watch --onSuccess \"node dist/index.js\"",
-    "build": "tsc && copyfiles --up 1 'src/views/**/*.hjs' dist/views",
+    "build": "tsc && copyfiles --up 2 'src/views/**/*.hjs' dist/views",
     "keys": "node src/lib/genKeys.js && copyfiles --flat src/keys/*.pem dist/keys"
   },
   "author": "Leonardo Vizcaya (Arpix)",
