@@ -17,7 +17,7 @@ const server: Application = express();
 server.set('port', process.env.PORT || 3000);
 const corsOptions = {
     origin: process.env.CORS_ORIGIN || '*',
-    credentials: (process.env.CORS_CREDENTIALS === 'true')
+    credentials: (process.env.CORS_CREDENTIALS == 'true')
 };
 
 // Middlewares

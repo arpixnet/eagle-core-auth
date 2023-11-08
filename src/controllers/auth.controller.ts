@@ -48,6 +48,7 @@ const login = async (user:IUser, req: Request, res: Response) => {
             res.cookie('eagleRT', refreshToken, {
                 httpOnly: true,
                 secure: config.tokens.secure,
+                sameSite: 'none',
                 expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
             });
         }
@@ -114,6 +115,7 @@ const register = async (values:any, social:any, req:Request, res:Response) => {
                 res.cookie('eagleRT', refreshToken, {
                     httpOnly: true,
                     secure: config.tokens.secure,
+                    sameSite: 'none',
                     expires: new Date(Date.now() + parseInt(config.tokens.refresh.toString())),
                 });
             } else {
