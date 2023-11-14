@@ -11,7 +11,7 @@ import { getRandom } from "../lib/tools";
 import hogan from "hogan.js";
 import fs from "fs";
 import path from "path";
-import { sendEmail, IEmail } from "../controllers/mail.controller";
+import { sendEmail, IEmail, startSendEmail } from "../controllers/mail.controller";
 
 // *************************** Methods ***************************
 
@@ -647,27 +647,6 @@ const updateUser = async (req: Request, res: Response): Promise<Response> => {
     } catch (err) {
         console.error(err);
         return res.status(msgErrors.UNEXPECTED_ERROR_TRY_LATER.error.code).json(msgErrors.UNEXPECTED_ERROR_TRY_LATER);
-    }
-}
-
-const startSendEmail = (template:string, email:string, payloadContent:any, payloadSubject:any = {}) => {
-    try {
-        const pathToContent = path.join(__dirname, `../views/${template}/content.hjs`);
-        const pathToSubject = path.join(__dirname, `../views/${template}/subject.hjs`);
-        const content = fs.readFileSync(pathToContent, 'utf8');
-        const subject = fs.readFileSync(pathToSubject, 'utf8');
-        let compiledContent = hogan.compile(content);
-        let compiledSubject = hogan.compile(subject);
-
-        let payload:IEmail = {
-            from: config.email.from,
-            to: email,
-            subject: compiledSubject.render(payloadSubject),
-            html: compiledContent.render(payloadContent)
-        }
-        sendEmail(payload);
-    } catch (err) {
-        console.error(err);
     }
 }
 
