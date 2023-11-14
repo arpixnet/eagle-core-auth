@@ -16,6 +16,9 @@ import {
   socialSignIn,
   updateUser
 } from '../controllers/auth.controller';
+import { 
+  createAdminUser
+} from "../controllers/admin.controller";
 import { jwk } from "../controllers/jwk.comtroller";
 import passport from "passport";
 import getTokenGithub from "../middlewares/get-token-github";
@@ -59,7 +62,7 @@ router.patch('/user', passport.authenticate('jwt', { session: false }), updateUs
 // router.get('/admin/user/:id/roles', getUserRoles);
 // router.delete('/admin/user/role', removeRoleFromUser);
 
-// router.post('/admin/user', createAdminUser);
+router.post('/admin/user', passport.authenticate('jwt', { session: false }), createAdminUser);
 // router.get('/admin/user', readAdminUsers);
 // router.get('/admin/user/:id', readAdminUser);
 // router.patch('/admin/user', updateAdminUser);

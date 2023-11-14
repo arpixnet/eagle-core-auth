@@ -107,6 +107,12 @@ export class User {
         return await db.query(insertUserRoleQuery, [id]);
     }
 
+    // Add Role to User
+    static async insertUserRole(id: string | undefined, role: string) {
+        const insertUserRoleQuery = `INSERT INTO auth_role (auth_id, role_code, main) VALUES ($1, $2, true) returning *`;
+        return await db.query(insertUserRoleQuery, [id, role]);
+    }
+
     // Update email verification code
     static async updateEmailVerification(id: string | undefined, code: string): Promise<IUser | null> {
         const expires = moment(Date.now()).add(1, 'day').unix();

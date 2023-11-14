@@ -100,7 +100,13 @@ const msgErrors = {
             message: 'Unauthorized',
             code: 401
         }
-    }
+    },
+    NOT_ROLE: {
+        error: {
+            message: 'You must enter a valid role',
+            code: 400
+        }
+    },
 }
 
 export {
