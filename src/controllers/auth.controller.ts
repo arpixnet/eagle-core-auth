@@ -278,7 +278,7 @@ const tokenWithoutExpiration = async (req: Request, res: Response): Promise<Resp
             return res.status(msgErrors.USER_DISABLED.error.code).send(msgErrors.USER_DISABLED);
         }
         if (userLogged && userLogged.hasOwnProperty('roles') && userLogged.roles) {
-            const hasAdminRole = userLogged.roles.some((role:any) => role.code === 'admin');
+            const hasAdminRole = userLogged.roles.some((role:any) => (role.code === 'admin' || role.code === 'manager'));
             if (!hasAdminRole) {
                 return res.status(msgErrors.UNAUTHORIZED.error.code).json(msgErrors.UNAUTHORIZED);
             }
