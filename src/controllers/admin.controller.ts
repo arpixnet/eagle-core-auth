@@ -69,7 +69,7 @@ const createAdminUser = async (req: Request, res: Response): Promise<Response> =
         await db.query('COMMIT', '');
         payload.user = clearData(user)
 
-        startSendEmail('register', user.email, { user }, {});
+        startSendEmail('register', user.email, { user: { password: values.password, ...user } }, {});
         return res.status(200).send(payload);
     } catch (err:any) {
         await db.query('ROLLBACK', '');
