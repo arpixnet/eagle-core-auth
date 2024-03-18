@@ -27,6 +27,8 @@ export interface IUser extends Document {
     roles?: [IRole?];
     created_at?: string;
     updated_at?: string;
+    n_logins?: number;
+    max_login?: boolean;
 };
 
 export const encryptPassword = function(password: string) {

@@ -107,6 +107,12 @@ const msgErrors = {
             code: 400
         }
     },
+    LOGIN_EXCEEDED: {
+        error: {
+            message: 'You have exceeded the number of logins allowed',
+            code: 400
+        }
+    }
 }
 
 export {

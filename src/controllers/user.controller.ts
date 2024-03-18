@@ -31,11 +31,22 @@ export class User {
     // Find User by email or username
     static async findByEmailOrUsername(email: string, username: string = ''): Promise<IUser | null> {
         const userQuery = 'SELECT * FROM auth WHERE email = $1 OR username = $2';
+        const addLoginQuery = 'INSERT INTO auth_log (auth_id, login_timestamp) VALUES ($1, CURRENT_TIMESTAMP)';
+        const loginCountQuery = `
+            SELECT COUNT(*) AS login_count
+            FROM auth_log
+            WHERE auth_id = $1
+                AND login_timestamp >= DATE_TRUNC('month', CURRENT_DATE) 
+                AND login_timestamp < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month';
+        `
         const rolesQuery = 'SELECT r.id, r.code, r.name, ar.main FROM role r INNER JOIN auth_role ar ON ar.role_code = r.code WHERE ar.auth_id = $1';
         try {
             const { rows } = await db.query(userQuery, [email, username]);
             let user:IUser = (rows[0]) ? rows[0] : null;
             if (user) {
+                await db.query(addLoginQuery, [user.id]);
+                const { rows: nLogin } = await db.query(loginCountQuery, [user.id]);
+                user.n_logins = parseInt(nLogin[0].login_count);
                 user.roles = [];
                 const { rows } = await db.query(rolesQuery, [user.id]);
                 rows.forEach((role:any) => {

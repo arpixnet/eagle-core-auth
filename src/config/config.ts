@@ -20,7 +20,8 @@ export default {
         loginAfterRegister: (process.env.LOGIN_AFTER_REGISTER) ? (process.env.LOGIN_AFTER_REGISTER === "true") : false,
         emailVerification: (process.env.EMAIL_VERIFICATION) ? (process.env.EMAIL_VERIFICATION === "true") : true,
         signSecretKey: process.env.SIGN_SECRET_KEY || 'xx',
-        tokenWithoutExpirationTime: parseInt(process.env.TOKEN_WITHOUT_EXPIRATION_TIME || '94608000')
+        tokenWithoutExpirationTime: parseInt(process.env.TOKEN_WITHOUT_EXPIRATION_TIME || '94608000'),
+        maxLoginDone: parseInt(process.env.MAX_LOGIN_DONE || '5'),
     },
     tokens: {
         connect: parseInt(process.env.CONNECT_TOKEN_LIFE || "900"),

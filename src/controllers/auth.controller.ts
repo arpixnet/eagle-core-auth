@@ -194,6 +194,9 @@ const signIn = async (req: Request, res: Response): Promise<Response> => {
         if (!user) {
             return res.status(msgErrors.USER_NOT_FOUND.error.code).send(msgErrors.USER_NOT_FOUND);
         }
+        if (user.max_login && user.n_logins && user.n_logins > config.auth.maxLoginDone) {
+            return res.status(msgErrors.LOGIN_EXCEEDED.error.code).send(msgErrors.LOGIN_EXCEEDED);
+        }
         const respCompare = comparePassword(req.body.password, user.password, user.salt);
         if (!respCompare) {
             return res.status(msgErrors.INVALID_PASSWORD.error.code).send(msgErrors.INVALID_PASSWORD);
